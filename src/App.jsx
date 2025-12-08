@@ -7,6 +7,9 @@ export default function App() {
   const { user, logout } = useAuth();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
+  // Debug: Log user info
+  console.log("Current user:", user);
+
   const navLinks = [
     { to: "/parts", label: "Linh kiện" },
     { to: "/compare", label: "So sánh" },

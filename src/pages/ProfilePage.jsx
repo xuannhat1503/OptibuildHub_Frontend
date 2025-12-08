@@ -18,6 +18,10 @@ export default function ProfilePage() {
   const isOwnProfile = user && user.id === parseInt(userId);
 
   useEffect(() => {
+    // Clear old data when userId changes
+    setPosts([]);
+    setBuilds([]);
+    setProfileUser(null);
     loadUserData();
   }, [userId]);
 
