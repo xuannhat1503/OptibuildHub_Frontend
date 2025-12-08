@@ -6,6 +6,7 @@ import { getPosts } from "../api/post";
 import { getAllUsers, deleteUser, updateUserRole, getAllComments, deleteComment, deletePost } from "../api/admin";
 import { formatDate, formatPrice, formatRelativeTime } from "../utils/format";
 import Loading from "../components/Loading";
+import ImageUploader from "../components/ImageUploader";
 
 export default function AdminPage() {
   const { user } = useAuth();
@@ -17,6 +18,7 @@ export default function AdminPage() {
   const [loading, setLoading] = useState(false);
   const [editingPart, setEditingPart] = useState(null);
   const [showPartModal, setShowPartModal] = useState(false);
+  const [partImageUrl, setPartImageUrl] = useState("");
 
   // Redirect if not admin
   if (!user || user.role !== "ADMIN") {
@@ -93,11 +95,13 @@ export default function AdminPage() {
 
   const handleEditPart = (part) => {
     setEditingPart(part);
+    setPartImageUrl(part.imageUrl || "");
     setShowPartModal(true);
   };
 
   const handleAddPart = () => {
     setEditingPart(null);
+    setPartImageUrl("");
     setShowPartModal(true);
   };
 
@@ -110,7 +114,7 @@ export default function AdminPage() {
       brand: formData.get("brand"),
       price: parseFloat(formData.get("price")),
       wattage: parseInt(formData.get("wattage")) || 0,
-      imageUrl: formData.get("imageUrl"),
+      imageUrl: partImageUrl || formData.get("imageUrl"), // Use uploaded image or manual URL
       specJson: formData.get("specJson") || "{}",
       crawlUrl: formData.get("crawlUrl"), // URL để crawl giá
     };
@@ -498,13 +502,40 @@ export default function AdminPage() {
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium mb-1">URL hình ảnh</label>
-                <input
-                  name="imageUrl"
-                  type="text"
-                  defaultValue={editingPart?.imageUrl}
-                  className="w-full px-3 py-2 border rounded-md"
+                <label className="block text-sm font-medium mb-1">Hình ảnh</label>
+                
+                {/* Image Uploader */}
+                <ImageUploader
+                  onUpload={(urls) => {
+                    const url = Array.isArray(urls) ? urls[0] : urls;
+                    setPartImageUrl(url);
+                  }}
+                  maxImages={1}
                 />
+                
+                {/* Preview uploaded image */}
+                {partImageUrl && (
+                  <div className="mt-2">
+                    <img
+                      src={partImageUrl}
+                      alt="Preview"
+                      className="w-32 h-32 object-cover rounded border"
+                    />
+                  </div>
+                )}
+                
+                {/* Manual URL input (optional) */}
+                <div className="mt-2">
+                  <label className="block text-xs text-gray-500 mb-1">Hoặc nhập URL thủ công</label>
+                  <input
+                    name="imageUrl"
+                    type="text"
+                    value={partImageUrl}
+                    onChange={(e) => setPartImageUrl(e.target.value)}
+                    placeholder="https://example.com/image.jpg"
+                    className="w-full px-3 py-2 border rounded-md text-sm"
+                  />
+                </div>
               </div>
               <div>
                 <label className="block text-sm font-medium mb-1">
