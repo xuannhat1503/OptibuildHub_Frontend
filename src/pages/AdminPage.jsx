@@ -124,7 +124,7 @@ export default function AdminPage() {
         alert("Thêm linh kiện thành công!");
       }
       setShowPartModal(false);
-      loadParts();
+      window.location.reload();
     } catch (error) {
       console.error("Error saving part:", error);
       alert("Lỗi khi lưu linh kiện");
@@ -136,7 +136,7 @@ export default function AdminPage() {
       const response = await crawlPartPrice(partId);
       if (response.success) {
         alert("Đã gửi yêu cầu cập nhật giá!");
-        loadParts();
+        window.location.reload();
       }
     } catch (error) {
       console.error("Error updating price:", error);
@@ -149,7 +149,7 @@ export default function AdminPage() {
     try {
       await deletePart(partId);
       alert("Đã xóa linh kiện!");
-      loadParts();
+      window.location.reload();
     } catch (error) {
       console.error("Error deleting part:", error);
       alert("Lỗi khi xóa linh kiện");
@@ -161,7 +161,7 @@ export default function AdminPage() {
     try {
       await deletePost(postId);
       alert("Đã xóa bài viết!");
-      loadPosts();
+      window.location.reload();
     } catch (error) {
       console.error("Error deleting post:", error);
       alert("Lỗi khi xóa bài viết");
@@ -173,7 +173,7 @@ export default function AdminPage() {
     try {
       await deleteUser(userId);
       alert("Đã xóa người dùng!");
-      loadUsers();
+      window.location.reload();
     } catch (error) {
       console.error("Error deleting user:", error);
       alert("Lỗi khi xóa người dùng");
@@ -198,7 +198,7 @@ export default function AdminPage() {
     try {
       await deleteComment(commentId);
       alert("Đã xóa bình luận!");
-      loadComments();
+      window.location.reload();
     } catch (error) {
       console.error("Error deleting comment:", error);
       alert("Lỗi khi xóa bình luận");

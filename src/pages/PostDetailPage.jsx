@@ -46,13 +46,18 @@ export default function PostDetailPage() {
     }
     
     try {
-      await addReaction(id, {
+      const response = await addReaction(id, {
         userId: user.id,
         type: type.toUpperCase(),
       });
-      loadPost(); // Reload to get updated counts
+      
+      if (response.success) {
+        alert(type === 'like' ? '👍 Đã like!' : '👎 Đã dislike!');
+        window.location.reload();
+      }
     } catch (error) {
       console.error("Error adding reaction:", error);
+      alert("Lỗi khi thực hiện");
     }
   };
 
@@ -68,19 +73,19 @@ export default function PostDetailPage() {
 
     setSubmitting(true);
     try {
-      await addComment(id, {
+      const response = await addComment(id, {
         userId: user.id,
         content: commentText,
         parentId: replyTo,
       });
 
-      setCommentText("");
-      setReplyTo(null);
-      loadPost();
+      if (response.success) {
+        alert("✅ Đã thêm bình luận!");
+        window.location.reload();
+      }
     } catch (error) {
       console.error("Error adding comment:", error);
       alert("Lỗi khi thêm bình luận");
-    } finally {
       setSubmitting(false);
     }
   };
@@ -131,7 +136,8 @@ export default function PostDetailPage() {
 
     try {
       await deleteComment(id, commentId);
-      loadPost();
+      alert("Đã xóa bình luận!");
+      window.location.reload();
     } catch (error) {
       console.error("Error deleting comment:", error);
       alert("Lỗi khi xóa bình luận");
@@ -192,6 +198,7 @@ export default function PostDetailPage() {
                     key={idx}
                     src={getImageUrl(url)}
                     alt={`Image ${idx + 1}`}
+                    loading="lazy"
                     className="w-full rounded-lg"
                   />
                 ))}

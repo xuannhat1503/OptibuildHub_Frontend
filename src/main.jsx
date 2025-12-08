@@ -1,58 +1,67 @@
-import { StrictMode } from 'react'
+import { StrictMode, lazy, Suspense } from 'react'
 import { createRoot } from 'react-dom/client'
 import { createBrowserRouter, RouterProvider } from 'react-router-dom'
 import './index.css'
 import App from './App.jsx'
 import { AuthProvider } from './context/AuthContext'
-import HomePage from './pages/HomePage'
-import LoginPage from './pages/LoginPage'
-import RegisterPage from './pages/RegisterPage'
-import PartsListPage from './pages/PartsListPage'
-import PartDetailPage from './pages/PartDetailPage'
-import BuilderPage from './pages/BuilderPage'
-import ForumListPage from './pages/ForumListPage'
-import CreatePostPage from './pages/CreatePostPage'
-import PostDetailPage from './pages/PostDetailPage'
-import ProfilePage from './pages/ProfilePage'
-import AdminPage from './pages/AdminPage'
-import ComparePartsPage from './pages/ComparePartsPage'
+import Loading from './components/Loading'
 import ProtectedRoute from './components/ProtectedRoute'
+
+// Lazy load all pages for better performance
+const HomePage = lazy(() => import('./pages/HomePage'))
+const LoginPage = lazy(() => import('./pages/LoginPage'))
+const RegisterPage = lazy(() => import('./pages/RegisterPage'))
+const PartsListPage = lazy(() => import('./pages/PartsListPage'))
+const PartDetailPage = lazy(() => import('./pages/PartDetailPage'))
+const BuilderPage = lazy(() => import('./pages/BuilderPage'))
+const ForumListPage = lazy(() => import('./pages/ForumListPage'))
+const CreatePostPage = lazy(() => import('./pages/CreatePostPage'))
+const PostDetailPage = lazy(() => import('./pages/PostDetailPage'))
+const ProfilePage = lazy(() => import('./pages/ProfilePage'))
+const AdminPage = lazy(() => import('./pages/AdminPage'))
+const ComparePartsPage = lazy(() => import('./pages/ComparePartsPage'))
 
 const router = createBrowserRouter([
   {
     path: '/',
     element: <App />,
     children: [
-      { index: true, element: <HomePage /> },
-      { path: 'login', element: <LoginPage /> },
-      { path: 'register', element: <RegisterPage /> },
-      { path: 'parts', element: <PartsListPage /> },
-      { path: 'parts/:id', element: <PartDetailPage /> },
-      { path: 'compare', element: <ComparePartsPage /> },
+      { index: true, element: <Suspense fallback={<Loading />}><HomePage /></Suspense> },
+      { path: 'login', element: <Suspense fallback={<Loading />}><LoginPage /></Suspense> },
+      { path: 'register', element: <Suspense fallback={<Loading />}><RegisterPage /></Suspense> },
+      { path: 'parts', element: <Suspense fallback={<Loading />}><PartsListPage /></Suspense> },
+      { path: 'parts/:id', element: <Suspense fallback={<Loading />}><PartDetailPage /></Suspense> },
+      { path: 'compare', element: <Suspense fallback={<Loading />}><ComparePartsPage /></Suspense> },
       { 
         path: 'builder', 
         element: (
           <ProtectedRoute>
-            <BuilderPage />
+            <Suspense fallback={<Loading />}>
+              <BuilderPage />
+            </Suspense>
           </ProtectedRoute>
         )
       },
-      { path: 'forum', element: <ForumListPage /> },
+      { path: 'forum', element: <Suspense fallback={<Loading />}><ForumListPage /></Suspense> },
       { 
         path: 'forum/create', 
         element: (
           <ProtectedRoute>
-            <CreatePostPage />
+            <Suspense fallback={<Loading />}>
+              <CreatePostPage />
+            </Suspense>
           </ProtectedRoute>
         )
       },
-      { path: 'forum/:id', element: <PostDetailPage /> },
-      { path: 'profile/:userId', element: <ProfilePage /> },
+      { path: 'forum/:id', element: <Suspense fallback={<Loading />}><PostDetailPage /></Suspense> },
+      { path: 'profile/:userId', element: <Suspense fallback={<Loading />}><ProfilePage /></Suspense> },
       { 
         path: 'admin', 
         element: (
           <ProtectedRoute>
-            <AdminPage />
+            <Suspense fallback={<Loading />}>
+              <AdminPage />
+            </Suspense>
           </ProtectedRoute>
         )
       },

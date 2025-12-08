@@ -80,6 +80,7 @@ export default function ImageUploader({ onUpload, multiple = false }) {
               key={idx}
               src={src}
               alt={`Preview ${idx}`}
+              loading="lazy"
               className="w-full h-24 object-cover rounded-md"
             />
           ))}

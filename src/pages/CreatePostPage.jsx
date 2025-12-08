@@ -124,6 +124,13 @@ export default function CreatePostPage() {
     } catch (error) {
       console.error("Error creating post:", error);
       console.error("Response data:", error.response?.data);
+      console.error("Response status:", error.response?.status);
+      console.error("Request payload:", {
+        userId: user.id,
+        title: formData.title,
+        content: formData.content,
+        imageUrls: formData.imageUrls,
+      });
       if (error.response?.status === 405) {
         alert("Backend chưa hỗ trợ tạo bài viết. Vui lòng thêm endpoint POST /api/posts vào ForumController.");
       } else {
@@ -136,6 +143,7 @@ export default function CreatePostPage() {
   };
 
   const handleImageUpload = (urls) => {
+    console.log("handleImageUpload called with:", urls);
     setFormData((prev) => ({
       ...prev,
       imageUrls: Array.isArray(urls) ? urls : [urls],

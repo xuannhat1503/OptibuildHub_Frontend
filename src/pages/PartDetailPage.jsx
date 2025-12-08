@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useParams, Link } from "react-router-dom";
 import { getPartDetail, getPartRatings, postRating } from "../api/part";
 import { formatPrice, formatDate } from "../utils/format";
@@ -21,6 +21,11 @@ export default function PartDetailPage() {
     content: "",
   });
 
+  // Memoize expensive JSON parsing - must be before any conditional returns
+  const specs = useMemo(() => {
+    return part?.specJson ? JSON.parse(part.specJson) : {};
+  }, [part?.specJson]);
+
   useEffect(() => {
     loadData();
   }, [id]);
@@ -28,22 +33,23 @@ export default function PartDetailPage() {
   const loadData = async () => {
     setLoading(true);
     try {
-      const partRes = await getPartDetail(id);
+      // Load both part detail and ratings in parallel for faster loading
+      const [partRes, ratingsRes] = await Promise.all([
+        getPartDetail(id),
+        getPartRatings(id).catch(err => {
+          console.warn("Could not load ratings:", err);
+          return { success: false, data: [] };
+        })
+      ]);
+      
       if (partRes.success) {
         console.log("Part data received:", partRes.data);
         console.log("Price history:", partRes.data.priceHistory);
         setPart(partRes.data);
       }
       
-      // Load ratings separately to avoid blocking if it fails
-      try {
-        const ratingsRes = await getPartRatings(id);
-        if (ratingsRes.success) {
-          setRatings(ratingsRes.data);
-        }
-      } catch (ratingError) {
-        console.warn("Could not load ratings:", ratingError);
-        setRatings([]); // Set empty array if ratings fail
+      if (ratingsRes.success) {
+        setRatings(ratingsRes.data);
       }
     } catch (error) {
       console.error("Error loading part:", error);
@@ -86,8 +92,6 @@ export default function PartDetailPage() {
   if (loading) return <Loading />;
   if (!part) return <div className="text-center py-12">Không tìm thấy linh kiện</div>;
 
-  const specs = part.specJson ? JSON.parse(part.specJson) : {};
-
   return (
     <div className="max-w-6xl mx-auto">
       <Link to="/parts" className="text-blue-600 hover:underline mb-4 inline-block">
@@ -102,6 +106,7 @@ export default function PartDetailPage() {
               <img
                 src={getImageUrl(part.imageUrl)}
                 alt={part.name}
+                loading="lazy"
                 className="w-full h-full object-cover rounded-lg"
               />
             ) : (

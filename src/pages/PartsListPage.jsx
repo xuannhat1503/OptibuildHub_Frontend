@@ -7,6 +7,7 @@ import { getImageUrl } from "../utils/api";
 import StarRating from "../components/StarRating";
 import Pagination from "../components/Pagination";
 import Loading from "../components/Loading";
+import SkeletonCard from "../components/SkeletonCard";
 import { useAuth } from "../context/AuthContext";
 
 export default function PartsListPage() {
@@ -204,7 +205,11 @@ export default function PartsListPage() {
         </div>
 
         {loading ? (
-          <Loading />
+          <div className="space-y-4">
+            {[...Array(6)].map((_, idx) => (
+              <SkeletonCard key={idx} />
+            ))}
+          </div>
         ) : parts.length === 0 ? (
           <div className="text-center py-12 text-gray-500">
             Không tìm thấy linh kiện nào
@@ -224,6 +229,7 @@ export default function PartsListPage() {
                       <img
                         src={getImageUrl(part.imageUrl)}
                         alt={part.name}
+                        loading="lazy"
                         className="w-full h-full object-cover"
                       />
                     ) : (

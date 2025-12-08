@@ -82,7 +82,7 @@ export default function ProfilePage() {
       const response = await deleteBuild(buildId);
       if (response.success) {
         alert("Đã xóa cấu hình thành công!");
-        loadUserData();
+        window.location.reload();
       } else {
         alert(response.message || "Không thể xóa cấu hình");
       }

@@ -124,6 +124,12 @@ export default function BuilderPage() {
       return;
     }
 
+    // Kiểm tra tương thích trước khi lưu
+    if (compatibility && !compatibility.compatible) {
+      alert("Không thể lưu cấu hình không tương thích! Vui lòng sửa các vấn đề được cảnh báo.");
+      return;
+    }
+
     setSaving(true);
     try {
       const response = await saveBuild({
@@ -231,27 +237,32 @@ export default function BuilderPage() {
                   className={`p-4 rounded-lg mb-4 ${
                     compatibility.compatible
                       ? "bg-green-50 border border-green-200"
-                      : "bg-red-50 border border-red-200"
+                      : "bg-yellow-50 border border-yellow-200"
                   }`}
                 >
                   <div className="flex items-center gap-2 mb-2">
                     <span className="text-2xl">
-                      {compatibility.compatible ? "✓" : "⚠"}
+                      {compatibility.compatible ? "✓" : "⚠️"}
                     </span>
                     <span className="font-semibold">
                       {compatibility.compatible
-                        ? "Tương thích"
-                        : "Có vấn đề tương thích"}
+                        ? "Tương thích hoàn toàn"
+                        : "Cảnh báo tương thích"}
                     </span>
                   </div>
                   {compatibility.warnings && compatibility.warnings.length > 0 && (
                     <ul className="text-sm space-y-1 ml-8">
                       {compatibility.warnings.map((warning, idx) => (
-                        <li key={idx} className="text-red-700">
+                        <li key={idx} className="text-orange-700">
                           • {warning}
                         </li>
                       ))}
                     </ul>
+                  )}
+                  {!compatibility.compatible && (
+                    <p className="text-xs text-gray-600 mt-2 ml-8">
+                      💡 Bạn vẫn có thể lưu cấu hình này, nhưng nên kiểm tra kỹ các cảnh báo
+                    </p>
                   )}
                 </div>
               )}
@@ -269,12 +280,18 @@ export default function BuilderPage() {
                   disabled={
                     saving ||
                     Object.keys(selectedParts).length === 0 ||
-                    !buildTitle.trim()
+                    !buildTitle.trim() ||
+                    (compatibility && !compatibility.compatible)
                   }
                   className="w-full px-4 py-3 bg-blue-600 text-white font-semibold rounded-md hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   {saving ? "Đang lưu..." : "Lưu cấu hình"}
                 </button>
+                {compatibility && !compatibility.compatible && (
+                  <p className="text-xs text-red-600 text-center">
+                    ⚠️ Cần sửa các vấn đề tương thích trước khi lưu
+                  </p>
+                )}
                 <button
                   onClick={handleShareToForum}
                   disabled={Object.keys(selectedParts).length === 0}

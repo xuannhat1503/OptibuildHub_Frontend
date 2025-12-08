@@ -148,6 +148,7 @@ export default function ComparePartsPage() {
                         <img
                           src={getImageUrl(part.imageUrl)}
                           alt={part.name}
+                          loading="lazy"
                           className="w-full h-full object-cover rounded"
                         />
                       ) : (
@@ -177,6 +178,7 @@ export default function ComparePartsPage() {
                 <img
                   src={getImageUrl(selectedPart.imageUrl)}
                   alt={selectedPart.name}
+                  loading="lazy"
                   className="w-full h-full object-cover rounded-lg"
                 />
               ) : (
@@ -202,6 +204,16 @@ export default function ComparePartsPage() {
                 </p>
               )}
             </div>
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                onSelect(null);
+                setSearchTerm("");
+              }}
+              className="ml-2 px-3 py-1 text-sm bg-red-500 text-white rounded-md hover:bg-red-600 transition"
+            >
+              Bỏ chọn
+            </button>
           </div>
         </div>
       )}
