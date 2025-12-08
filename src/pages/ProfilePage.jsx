@@ -3,7 +3,7 @@ import { useParams, Link } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { getPosts } from "../api/post";
 import { getUserBuilds, deleteBuild } from "../api/build";
-import { formatDate, formatPrice } from "../utils/format";
+import { formatDate, formatPrice, formatRelativeTime } from "../utils/format";
 import Loading from "../components/Loading";
 
 export default function ProfilePage() {

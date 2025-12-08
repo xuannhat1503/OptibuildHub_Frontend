@@ -4,7 +4,7 @@ import { Navigate } from "react-router-dom";
 import { getParts, createPart, updatePart, deletePart, crawlPartPrice } from "../api/part";
 import { getPosts } from "../api/post";
 import { getAllUsers, deleteUser, updateUserRole, getAllComments, deleteComment, deletePost } from "../api/admin";
-import { formatDate, formatPrice } from "../utils/format";
+import { formatDate, formatPrice, formatRelativeTime } from "../utils/format";
 import Loading from "../components/Loading";
 
 export default function AdminPage() {
