@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { createPost } from "../api/post";
+import { invalidateCacheByPrefix } from "../api/client";
 import { getBuildDetail } from "../api/build";
 import { useAuth } from "../context/AuthContext";
 import { formatPrice } from "../utils/format";
@@ -117,6 +118,8 @@ export default function CreatePostPage() {
 
       if (response.success) {
         alert("Bài viết đã được tạo thành công!");
+        // Invalidate posts cache so forum list shows the new post immediately
+        invalidateCacheByPrefix('/api/posts');
         navigate(`/forum/${response.data.id || ""}`);
       } else {
         alert(response.message || "Không thể tạo bài viết");

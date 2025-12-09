@@ -3,6 +3,7 @@ import { useParams, Link, useNavigate } from "react-router-dom";
 import { getPostDetail, addComment, addReaction, updatePost, deletePost, deleteComment } from "../api/post";
 import { formatRelativeTime } from "../utils/format";
 import { getImageUrl } from "../utils/api";
+import { invalidateCacheByPrefix } from "../api/client";
 import { useAuth } from "../context/AuthContext";
 import Loading from "../components/Loading";
 
@@ -53,7 +54,9 @@ export default function PostDetailPage() {
       
       if (response.success) {
         alert(type === 'like' ? '👍 Đã like!' : '👎 Đã dislike!');
-        window.location.reload();
+        // Invalidate cached post(s) and reload
+        invalidateCacheByPrefix('/api/posts');
+        await loadPost();
       }
     } catch (error) {
       console.error("Error adding reaction:", error);
@@ -81,7 +84,11 @@ export default function PostDetailPage() {
 
       if (response.success) {
         alert("✅ Đã thêm bình luận!");
-        window.location.reload();
+        setCommentText("");
+        setReplyTo(null);
+        // Invalidate cached post(s) and reload
+        invalidateCacheByPrefix('/api/posts');
+        await loadPost();
       }
     } catch (error) {
       console.error("Error adding comment:", error);
@@ -102,14 +109,20 @@ export default function PostDetailPage() {
 
     setSubmitting(true);
     try {
-      await updatePost(id, {
+      const res = await updatePost(id, {
         userId: user.id,
         title: editTitle,
         content: editContent,
         imageUrls: post.imageUrls || [],
       });
-      setEditingPost(false);
-      loadPost();
+      if (res.success) {
+        // Invalidate posts cache and reload post
+        invalidateCacheByPrefix('/api/posts');
+        setEditingPost(false);
+        await loadPost();
+      } else {
+        alert(res.message || 'Lỗi khi cập nhật bài viết');
+      }
     } catch (error) {
       console.error("Error updating post:", error);
       alert("Lỗi khi cập nhật bài viết");
@@ -123,6 +136,8 @@ export default function PostDetailPage() {
 
     try {
       await deletePost(id);
+      // Invalidate posts list so forum shows updated data
+      invalidateCacheByPrefix('/api/posts');
       alert("Đã xóa bài viết");
       navigate("/forum");
     } catch (error) {
@@ -137,7 +152,8 @@ export default function PostDetailPage() {
     try {
       await deleteComment(id, commentId);
       alert("Đã xóa bình luận!");
-      window.location.reload();
+      invalidateCacheByPrefix('/api/posts');
+      await loadPost();
     } catch (error) {
       console.error("Error deleting comment:", error);
       alert("Lỗi khi xóa bình luận");

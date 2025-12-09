@@ -1,10 +1,11 @@
 import { useState, useEffect } from "react";
 import { useParams, Link } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
-import { getPosts } from "../api/post";
+import { getPosts, getUserPosts } from "../api/post";
 import { getUserBuilds, deleteBuild } from "../api/build";
 import { formatDate, formatPrice, formatRelativeTime } from "../utils/format";
 import Loading from "../components/Loading";
+import { invalidateCacheByPrefix } from "../api/client";
 
 export default function ProfilePage() {
   const { userId } = useParams();
@@ -30,7 +31,7 @@ export default function ProfilePage() {
     try {
       // Load user's posts using the user-specific endpoint
       const [postsResponse, buildsResponse] = await Promise.all([
-        getPosts({ userId: userId, page: 0, size: 20 }),
+        getUserPosts(userId, { page: 0, size: 20 }),
         getUserBuilds(userId)
       ]);
 
@@ -84,9 +85,12 @@ export default function ProfilePage() {
 
     try {
       const response = await deleteBuild(buildId);
-      if (response.success) {
+        if (response.success) {
         alert("Đã xóa cấu hình thành công!");
-        window.location.reload();
+        // Invalidate relevant caches and refresh builds/posts
+        invalidateCacheByPrefix('/api/builds');
+        invalidateCacheByPrefix('/api/posts');
+        await loadUserData();
       } else {
         alert(response.message || "Không thể xóa cấu hình");
       }

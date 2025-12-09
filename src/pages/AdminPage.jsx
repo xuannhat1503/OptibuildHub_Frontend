@@ -7,6 +7,7 @@ import { getAllUsers, deleteUser, updateUserRole, getAllComments, deleteComment,
 import { formatDate, formatPrice, formatRelativeTime } from "../utils/format";
 import Loading from "../components/Loading";
 import ImageUploader from "../components/ImageUploader";
+import { invalidateCacheByPrefix } from "../api/client";
 
 export default function AdminPage() {
   const { user } = useAuth();
@@ -120,15 +121,32 @@ export default function AdminPage() {
     };
 
     try {
-      if (editingPart) {
-        await updatePart(editingPart.id, partData);
-        alert("Cập nhật linh kiện thành công!");
-      } else {
-        await createPart(partData);
-        alert("Thêm linh kiện thành công!");
-      }
-      setShowPartModal(false);
-      window.location.reload();
+        if (editingPart) {
+          const res = await updatePart(editingPart.id, partData);
+          if (res.success) {
+            alert("Cập nhật linh kiện thành công!");
+            // update local parts list
+            setParts((prev) => prev.map(p => p.id === editingPart.id ? res.data : p));
+            // Invalidate cached GET /api/parts
+            invalidateCacheByPrefix('/api/parts');
+          } else {
+            alert(res.message || "Lỗi khi cập nhật linh kiện");
+          }
+        } else {
+          const res = await createPart(partData);
+          if (res.success) {
+            alert("Thêm linh kiện thành công!");
+            // prepend new part to list for immediate feedback
+            setParts((prev) => [res.data, ...prev]);
+            // Invalidate cached GET /api/parts
+            invalidateCacheByPrefix('/api/parts');
+          } else {
+            alert(res.message || "Lỗi khi tạo linh kiện");
+          }
+        }
+        setShowPartModal(false);
+        setEditingPart(null);
+        setPartImageUrl("");
     } catch (error) {
       console.error("Error saving part:", error);
       alert("Lỗi khi lưu linh kiện");
@@ -138,9 +156,10 @@ export default function AdminPage() {
   const handleUpdatePrice = async (partId) => {
     try {
       const response = await crawlPartPrice(partId);
-      if (response.success) {
+        if (response.success) {
         alert("Đã gửi yêu cầu cập nhật giá!");
-        window.location.reload();
+        invalidateCacheByPrefix('/api/parts');
+        await loadParts();
       }
     } catch (error) {
       console.error("Error updating price:", error);
@@ -153,7 +172,8 @@ export default function AdminPage() {
     try {
       await deletePart(partId);
       alert("Đã xóa linh kiện!");
-      window.location.reload();
+      invalidateCacheByPrefix('/api/parts');
+      await loadParts();
     } catch (error) {
       console.error("Error deleting part:", error);
       alert("Lỗi khi xóa linh kiện");
@@ -165,7 +185,8 @@ export default function AdminPage() {
     try {
       await deletePost(postId);
       alert("Đã xóa bài viết!");
-      window.location.reload();
+      invalidateCacheByPrefix('/api/posts');
+      await loadPosts();
     } catch (error) {
       console.error("Error deleting post:", error);
       alert("Lỗi khi xóa bài viết");
@@ -177,7 +198,8 @@ export default function AdminPage() {
     try {
       await deleteUser(userId);
       alert("Đã xóa người dùng!");
-      window.location.reload();
+      invalidateCacheByPrefix('/api/users');
+      await loadUsers();
     } catch (error) {
       console.error("Error deleting user:", error);
       alert("Lỗi khi xóa người dùng");
@@ -202,7 +224,8 @@ export default function AdminPage() {
     try {
       await deleteComment(commentId);
       alert("Đã xóa bình luận!");
-      window.location.reload();
+      invalidateCacheByPrefix('/api/comments');
+      await loadComments();
     } catch (error) {
       console.error("Error deleting comment:", error);
       alert("Lỗi khi xóa bình luận");

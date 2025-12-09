@@ -284,8 +284,15 @@ export default function PartDetailPage() {
                 <div className="flex items-center gap-2 mb-2">
                   <StarRating value={rating.score} readonly />
                   <span className="text-sm text-gray-600">
-                    {rating.user?.fullName || rating.user?.email || "User"}
+                    {rating.userName || rating.user?.fullName || rating.user?.email || "User"}
                   </span>
+                  {(
+                    rating.userRole || rating.user?.role
+                  ) && (
+                    <span className="text-xs text-white bg-gray-500 ml-2 px-2 py-0.5 rounded">
+                      {rating.userRole || rating.user?.role}
+                    </span>
+                  )}
                 </div>
                 {rating.content && (
                   <p className="text-gray-700">{rating.content}</p>

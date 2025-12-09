@@ -8,6 +8,19 @@ export const api = axios.create({
   validateStatus: (status) => status < 500,
 });
 
+// Expose cache invalidation helpers
+export function invalidateCacheByPrefix(prefix) {
+  for (const key of Array.from(cache.keys())) {
+    if (key.startsWith(prefix)) {
+      cache.delete(key);
+    }
+  }
+}
+
+export function clearCache() {
+  cache.clear();
+}
+
 // Simple in-memory cache for GET requests
 const cache = new Map();
 const CACHE_DURATION = 5 * 60 * 1000; // 5 minutes

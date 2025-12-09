@@ -4,6 +4,9 @@ import { api } from "./client";
 export const getPosts = (params) => 
   api.get("/api/posts", { params }).then((r) => r.data);
 
+export const getUserPosts = (userId, params) =>
+  api.get(`/api/posts/user/${userId}`, { params }).then((r) => r.data);
+
 export const getPostDetail = (id) => 
   api.get(`/api/posts/${id}`).then((r) => r.data);
 
