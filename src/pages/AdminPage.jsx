@@ -7,6 +7,7 @@ import { getAllUsers, deleteUser, updateUserRole, getAllComments, deleteComment,
 import { formatDate, formatPrice, formatRelativeTime } from "../utils/format";
 import Loading from "../components/Loading";
 import ImageUploader from "../components/ImageUploader";
+import SpecEditor from "../components/SpecEditor";
 import { invalidateCacheByPrefix } from "../api/client";
 
 export default function AdminPage() {
@@ -20,6 +21,9 @@ export default function AdminPage() {
   const [editingPart, setEditingPart] = useState(null);
   const [showPartModal, setShowPartModal] = useState(false);
   const [partImageUrl, setPartImageUrl] = useState("");
+  const [specs, setSpecs] = useState({});
+  const [partCategory, setPartCategory] = useState("CPU");
+  const [isSaving, setIsSaving] = useState(false);
 
   // Redirect if not admin
   if (!user || user.role !== "ADMIN") {
@@ -97,17 +101,28 @@ export default function AdminPage() {
   const handleEditPart = (part) => {
     setEditingPart(part);
     setPartImageUrl(part.imageUrl || "");
+    try {
+      const obj = part.specJson ? JSON.parse(part.specJson) : {};
+      setSpecs(obj);
+    } catch (e) {
+      setSpecs({});
+    }
+    setPartCategory(part.category || "CPU");
     setShowPartModal(true);
   };
 
   const handleAddPart = () => {
     setEditingPart(null);
     setPartImageUrl("");
+    setSpecs({});
+    setPartCategory("CPU");
     setShowPartModal(true);
   };
 
   const handleSavePart = async (e) => {
     e.preventDefault();
+    if (isSaving) return;
+    setIsSaving(true);
     const formData = new FormData(e.target);
     const partData = {
       name: formData.get("name"),
@@ -116,7 +131,7 @@ export default function AdminPage() {
       price: parseFloat(formData.get("price")),
       wattage: parseInt(formData.get("wattage")) || 0,
       imageUrl: partImageUrl || formData.get("imageUrl"), // Use uploaded image or manual URL
-      specJson: formData.get("specJson") || "{}",
+      specJson: Object.keys(specs || {}).length ? JSON.stringify(specs) : (formData.get("specJson") || "{}"),
       crawlUrl: formData.get("crawlUrl"), // URL để crawl giá
     };
 
@@ -150,6 +165,8 @@ export default function AdminPage() {
     } catch (error) {
       console.error("Error saving part:", error);
       alert("Lỗi khi lưu linh kiện");
+    } finally {
+      setIsSaving(false);
     }
   };
 
@@ -482,7 +499,8 @@ export default function AdminPage() {
                 <label className="block text-sm font-medium mb-1">Danh mục</label>
                 <select
                   name="category"
-                  defaultValue={editingPart?.category}
+                  value={partCategory}
+                  onChange={(e) => setPartCategory(e.target.value)}
                   required
                   className="w-full px-3 py-2 border rounded-md"
                 >
@@ -576,15 +594,11 @@ export default function AdminPage() {
               </div>
               <div>
                 <label className="block text-sm font-medium mb-1">
-                  Thông số kỹ thuật (JSON)
+                  Thông số kỹ thuật
                 </label>
-                <textarea
-                  name="specJson"
-                  defaultValue={editingPart?.specJson}
-                  rows={4}
-                  placeholder='{"socket": "AM5", "ramType": "DDR5"}'
-                  className="w-full px-3 py-2 border rounded-md font-mono text-sm"
-                />
+                <div>
+                  <SpecEditor value={specs} onChange={setSpecs} category={partCategory} />
+                </div>
               </div>
               <div className="flex gap-2 justify-end">
                 <button
