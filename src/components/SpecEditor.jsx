@@ -42,6 +42,18 @@ const PRESETS = {
   COOLER: [["type", ""], ["tdpSupported", ""]],
 };
 
+// Allowed fields per category (controlled list shown when editing/adding)
+const ALLOWED = {
+  CPU: ["socket", "cpuTdp", "cores", "threads", "baseClock", "boostClock"],
+  GPU: ["memory", "memoryType", "memoryBus", "coreClock", "gpuLengthMm", "gpuTdp"],
+  RAM: ["capacity", "modules", "speed", "type", "timings", "ramType"],
+  MAIN: ["socket", "chipset", "formFactor", "memorySlots", "ramSlots", "ramMaxGb", "m2Slots", "sataPorts", "pcieSlots"],
+  PSU: ["psuWatt", "modular", "efficiency"],
+  STORAGE: ["type", "capacity", "interface", "m2Slots"],
+  CASE: ["formFactor", "fanSupport", "maxGpuLength", "caseGpuMaxMm", "caseCoolerMaxMm"],
+  COOLER: ["type", "tdpSupported", "coolerHeightMm"]
+};
+
 function SpecEditor({ value = {}, onChange, category }) {
   const [fields, setFields] = useState([]);
 
@@ -111,6 +123,13 @@ function SpecEditor({ value = {}, onChange, category }) {
   const addField = () => setFields(prev => [...prev, { key: "", value: "" }]);
   const removeField = (idx) => setFields(prev => prev.filter((_, i) => i !== idx));
 
+  const [selectedAllowed, setSelectedAllowed] = React.useState("");
+  const addAllowedField = () => {
+    if (!selectedAllowed) return;
+    setFields(prev => [...prev, { key: selectedAllowed, value: "" }]);
+    setSelectedAllowed("");
+  };
+
   return (
     <div>
       <div className="flex items-center gap-2 mb-2">
@@ -127,6 +146,30 @@ function SpecEditor({ value = {}, onChange, category }) {
           Xóa tất cả
         </button>
       </div>
+      {category && (
+        <div className="flex items-center gap-2 mb-2">
+          <label className="text-sm text-gray-600">Thêm thông số phù hợp:</label>
+          <select
+            value={selectedAllowed}
+            onChange={(e) => setSelectedAllowed(e.target.value)}
+            className="px-2 py-1 border rounded-md text-sm"
+          >
+            <option value="">-- Chọn --</option>
+            {(ALLOWED[category] || []).filter(k => !fields.some(f => f.key === k)).map(k => (
+              <option key={k} value={k}>{k}</option>
+            ))}
+          </select>
+          <button
+            type="button"
+            onClick={addAllowedField}
+            disabled={!selectedAllowed}
+            className="px-2 py-1 bg-green-100 text-green-700 rounded-md text-sm"
+          >
+            Thêm
+          </button>
+          <div className="ml-4 text-sm text-gray-500">Hoặc thêm thủ công nếu cần</div>
+        </div>
+      )}
       <div className="space-y-2">
         {fields.map((f, idx) => (
           <div className="flex gap-2 items-center" key={idx}>

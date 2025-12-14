@@ -259,6 +259,11 @@ export default function BuilderPage() {
                       ))}
                     </ul>
                   )}
+                  {compatibility.recommendedPsuWatt && (
+                    <p className="text-sm text-gray-700 mt-2 ml-8">
+                      Khuyến nghị PSU: <span className="font-semibold">{compatibility.recommendedPsuWatt}W</span>
+                    </p>
+                  )}
                   {!compatibility.compatible && (
                     <p className="text-xs text-gray-600 mt-2 ml-8">
                       💡 Bạn vẫn có thể lưu cấu hình này, nhưng nên kiểm tra kỹ các cảnh báo

@@ -22,6 +22,7 @@ export const deletePart = (id) =>
 export const crawlPartPrice = (id) =>
   api.post(`/api/parts/${id}/crawl-price`).then((r) => r.data);
 
+
 // Ratings
 export const getPartRatings = (id) => 
   api.get(`/api/parts/${id}/ratings`).then((r) => r.data);

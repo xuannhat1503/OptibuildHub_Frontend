@@ -23,6 +23,7 @@ export default function AdminPage() {
   const [partImageUrl, setPartImageUrl] = useState("");
   const [specs, setSpecs] = useState({});
   const [partCategory, setPartCategory] = useState("CPU");
+  const [showAdvancedSpecs, setShowAdvancedSpecs] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
 
   // Redirect if not admin
@@ -596,7 +597,194 @@ export default function AdminPage() {
                 <label className="block text-sm font-medium mb-1">
                   Thông số kỹ thuật
                 </label>
-                <div>
+                <div className="mb-3">
+                  <button
+                    type="button"
+                    onClick={() => setShowAdvancedSpecs(s => !s)}
+                    className="px-2 py-1 bg-gray-100 rounded-md text-sm mb-2"
+                  >
+                    {showAdvancedSpecs ? "Ẩn thông số nâng cao" : "Hiển thị thông số nâng cao"}
+                  </button>
+
+                  {showAdvancedSpecs && (
+                    <div className="grid grid-cols-2 gap-2 mb-3">
+                      {/* Socket */}
+                      {(partCategory === "CPU" || partCategory === "MAIN") && (
+                        <div>
+                          <label className="block text-xs text-gray-600">Socket</label>
+                          <input
+                            className="w-full px-2 py-1 border rounded-md text-sm"
+                            value={specs.socket || ""}
+                            onChange={(e) => setSpecs(prev => ({ ...prev, socket: e.target.value }))}
+                          />
+                        </div>
+                      )}
+
+                      {/* ramType / ramSlots / ramMaxGb */}
+                      {(partCategory === "RAM" || partCategory === "MAIN") && (
+                        <>
+                          <div>
+                            <label className="block text-xs text-gray-600">RAM type</label>
+                            <input
+                              className="w-full px-2 py-1 border rounded-md text-sm"
+                              value={specs.ramType || ""}
+                              onChange={(e) => setSpecs(prev => ({ ...prev, ramType: e.target.value }))}
+                            />
+                          </div>
+                          <div>
+                            <label className="block text-xs text-gray-600">RAM slots</label>
+                            <input
+                              type="number"
+                              className="w-full px-2 py-1 border rounded-md text-sm"
+                              value={specs.ramSlots ?? ""}
+                              onChange={(e) => setSpecs(prev => ({ ...prev, ramSlots: e.target.value ? parseInt(e.target.value) : null }))}
+                            />
+                          </div>
+                          <div>
+                            <label className="block text-xs text-gray-600">RAM max (GB)</label>
+                            <input
+                              type="number"
+                              className="w-full px-2 py-1 border rounded-md text-sm"
+                              value={specs.ramMaxGb ?? ""}
+                              onChange={(e) => setSpecs(prev => ({ ...prev, ramMaxGb: e.target.value ? parseInt(e.target.value) : null }))}
+                            />
+                          </div>
+                        </>
+                      )}
+
+                      {/* formFactor */}
+                      {(partCategory === "MAIN" || partCategory === "CASE") && (
+                        <div>
+                          <label className="block text-xs text-gray-600">Form factor</label>
+                          <input
+                            className="w-full px-2 py-1 border rounded-md text-sm"
+                            value={specs.formFactor || ""}
+                            onChange={(e) => setSpecs(prev => ({ ...prev, formFactor: e.target.value }))}
+                          />
+                        </div>
+                      )}
+
+                      {/* GPU length / TDP */}
+                      {partCategory === "GPU" && (
+                        <>
+                          <div>
+                            <label className="block text-xs text-gray-600">GPU length (mm)</label>
+                            <input
+                              type="number"
+                              className="w-full px-2 py-1 border rounded-md text-sm"
+                              value={specs.gpuLengthMm ?? ""}
+                              onChange={(e) => setSpecs(prev => ({ ...prev, gpuLengthMm: e.target.value ? parseInt(e.target.value) : null }))}
+                            />
+                          </div>
+                          <div>
+                            <label className="block text-xs text-gray-600">GPU TDP (W)</label>
+                            <input
+                              type="number"
+                              className="w-full px-2 py-1 border rounded-md text-sm"
+                              value={specs.gpuTdp ?? ""}
+                              onChange={(e) => setSpecs(prev => ({ ...prev, gpuTdp: e.target.value ? parseInt(e.target.value) : null }))}
+                            />
+                          </div>
+                        </>
+                      )}
+
+                      {/* CPU TDP */}
+                      {partCategory === "CPU" && (
+                        <div>
+                          <label className="block text-xs text-gray-600">CPU TDP (W)</label>
+                          <input
+                            type="number"
+                            className="w-full px-2 py-1 border rounded-md text-sm"
+                            value={specs.cpuTdp ?? ""}
+                            onChange={(e) => setSpecs(prev => ({ ...prev, cpuTdp: e.target.value ? parseInt(e.target.value) : null }))}
+                          />
+                        </div>
+                      )}
+
+                      {/* Cooler / Case specifics */}
+                      {partCategory === "COOLER" && (
+                        <div>
+                          <label className="block text-xs text-gray-600">Cooler height (mm)</label>
+                          <input
+                            type="number"
+                            className="w-full px-2 py-1 border rounded-md text-sm"
+                            value={specs.coolerHeightMm ?? ""}
+                            onChange={(e) => setSpecs(prev => ({ ...prev, coolerHeightMm: e.target.value ? parseInt(e.target.value) : null }))}
+                          />
+                        </div>
+                      )}
+
+                      {partCategory === "CASE" && (
+                        <>
+                          <div>
+                            <label className="block text-xs text-gray-600">Case GPU max (mm)</label>
+                            <input
+                              type="number"
+                              className="w-full px-2 py-1 border rounded-md text-sm"
+                              value={specs.caseGpuMaxMm ?? ""}
+                              onChange={(e) => setSpecs(prev => ({ ...prev, caseGpuMaxMm: e.target.value ? parseInt(e.target.value) : null }))}
+                            />
+                          </div>
+                          <div>
+                            <label className="block text-xs text-gray-600">Case cooler max (mm)</label>
+                            <input
+                              type="number"
+                              className="w-full px-2 py-1 border rounded-md text-sm"
+                              value={specs.caseCoolerMaxMm ?? ""}
+                              onChange={(e) => setSpecs(prev => ({ ...prev, caseCoolerMaxMm: e.target.value ? parseInt(e.target.value) : null }))}
+                            />
+                          </div>
+                        </>
+                      )}
+
+                      {/* PSU */}
+                      {partCategory === "PSU" && (
+                        <div>
+                          <label className="block text-xs text-gray-600">PSU rated watt (W)</label>
+                          <input
+                            type="number"
+                            className="w-full px-2 py-1 border rounded-md text-sm"
+                            value={specs.psuWatt ?? ""}
+                            onChange={(e) => setSpecs(prev => ({ ...prev, psuWatt: e.target.value ? parseInt(e.target.value) : null }))}
+                          />
+                        </div>
+                      )}
+
+                      {/* Main counts */}
+                      {partCategory === "MAIN" && (
+                        <>
+                          <div>
+                            <label className="block text-xs text-gray-600">M.2 slots</label>
+                            <input
+                              type="number"
+                              className="w-full px-2 py-1 border rounded-md text-sm"
+                              value={specs.m2Slots ?? ""}
+                              onChange={(e) => setSpecs(prev => ({ ...prev, m2Slots: e.target.value ? parseInt(e.target.value) : null }))}
+                            />
+                          </div>
+                          <div>
+                            <label className="block text-xs text-gray-600">SATA ports</label>
+                            <input
+                              type="number"
+                              className="w-full px-2 py-1 border rounded-md text-sm"
+                              value={specs.sataPorts ?? ""}
+                              onChange={(e) => setSpecs(prev => ({ ...prev, sataPorts: e.target.value ? parseInt(e.target.value) : null }))}
+                            />
+                          </div>
+                          <div>
+                            <label className="block text-xs text-gray-600">PCIe slots</label>
+                            <input
+                              type="number"
+                              className="w-full px-2 py-1 border rounded-md text-sm"
+                              value={specs.pcieSlots ?? ""}
+                              onChange={(e) => setSpecs(prev => ({ ...prev, pcieSlots: e.target.value ? parseInt(e.target.value) : null }))}
+                            />
+                          </div>
+                        </>
+                      )}
+                    </div>
+                  )}
+
                   <SpecEditor value={specs} onChange={setSpecs} category={partCategory} />
                 </div>
               </div>
